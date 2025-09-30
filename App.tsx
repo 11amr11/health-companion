@@ -17,7 +17,7 @@ const App: React.FC = () => {
     setMessages([
       {
         id: Date.now(),
-        text: 'أهلاً وسهلاً بك! أنا رفيق صحتي. أخبرني، ما هو هدفك الصحي اليوم؟ هل ترغب في إنقاص وزنك، بناء العضلات، أم مجرد اعتماد أسلوب حياة أكثر صحة؟',
+        text: 'أهلاً وسهلاً بك! أنا رفيق صحتك. أخبرني، ما هو هدفك الصحي اليوم؟ هل ترغب في إنقاص وزنك، بناء العضلات، أم مجرد اعتماد أسلوب حياة أكثر صحة؟',
         sender: 'ai',
       },
     ]);
@@ -53,7 +53,7 @@ const App: React.FC = () => {
           <HealthBotIcon />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-emerald-600">رفيق صحتي</h1>
+          <h1 className="text-xl font-bold text-emerald-600">رفيق صحتك</h1>
           <p className="text-sm text-gray-500">مساعدك الصحي الذكي</p>
         </div>
       </header>

@@ -1,7 +1,6 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import type { Message } from '../types';
-import { SendIcon, UserIcon, HealthBotIcon } from './icons';
+import { UserIcon, HealthBotIcon, SendIcon } from './icons';
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -10,105 +9,134 @@ interface ChatInterfaceProps {
   error: string | null;
 }
 
-const ChatMessage: React.FC<{ message: Message }> = ({ message }) => {
-  const isUser = message.sender === 'user';
-  return (
-    <div className={`flex items-start gap-3 ${isUser ? 'justify-end' : ''}`}>
-      {!isUser && (
-        <div className="flex-shrink-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white">
-          <HealthBotIcon className="w-5 h-5" />
-        </div>
-      )}
-      <div
-        className={`max-w-md md:max-w-lg lg:max-w-2xl rounded-2xl p-4 text-sm whitespace-pre-wrap ${
-          isUser
-            ? 'bg-emerald-600 text-white rounded-br-none'
-            : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
-        }`}
-      >
-        {message.text}
-      </div>
-      {isUser && (
-        <div className="flex-shrink-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600">
-          <UserIcon className="w-5 h-5" />
-        </div>
-      )}
-    </div>
-  );
-};
-
-
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ messages, isLoading, onSendMessage, error }) => {
-  const [inputText, setInputText] = useState('');
+const ChatInterface: React.FC<ChatInterfaceProps> = ({
+  messages,
+  isLoading,
+  onSendMessage,
+  error,
+}) => {
+  const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const scrollToBottom = () => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, [messages, isLoading]);
 
-  useEffect(scrollToBottom, [messages, isLoading]);
-
-  const handleSend = () => {
-    if (inputText.trim() && !isLoading) {
-      onSendMessage(inputText);
-      setInputText('');
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSend();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim() && !isLoading) {
+      onSendMessage(input);
+      setInput('');
     }
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-gray-50">
-        {messages.map((msg) => (
-          <ChatMessage key={msg.id} message={msg} />
-        ))}
-        {isLoading && (
-          <div className="flex items-start gap-3">
-             <div className="flex-shrink-0 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white">
-                <HealthBotIcon className="w-5 h-5" />
+    <div className="flex flex-col h-full">
+      {/* Messages Container */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-emerald-50/30 to-white/50">
+        {messages.length === 0 && (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center max-w-md p-8 bg-white rounded-2xl shadow-lg border-2 border-emerald-100 animate-fade-in">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-xl animate-pulse-slow">
+                <HealthBotIcon className="w-12 h-12 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-emerald-700 mb-3">مرحباً بك في رفيق صحتك</h2>
+              <p className="text-gray-600 leading-relaxed">
+                أنا هنا لمساعدتك في رحلتك الصحية. اسألني عن التغذية، التمارين، أو أي نصائح صحية تحتاجها!
+              </p>
             </div>
-            <div className="bg-white text-gray-800 border border-gray-200 rounded-2xl p-4 rounded-bl-none">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 bg-emerald-400 rounded-full animate-pulse [animation-delay:-0.3s]"></span>
-                <span className="h-2 w-2 bg-emerald-400 rounded-full animate-pulse [animation-delay:-0.15s]"></span>
-                <span className="h-2 w-2 bg-emerald-400 rounded-full animate-pulse"></span>
+          </div>
+        )}
+
+        {messages.map((message, index) => (
+          <div
+            key={message.id}
+            className={`flex items-start gap-3 animate-slide-in ${
+              message.sender === 'user' ? 'flex-row-reverse' : ''
+            }`}
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            {/* Avatar */}
+            <div
+              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-110 ${
+                message.sender === 'user'
+                  ? 'bg-gradient-to-br from-blue-400 to-blue-600'
+                  : 'bg-gradient-to-br from-emerald-400 to-teal-500'
+              }`}
+            >
+              {message.sender === 'user' ? (
+                <UserIcon className="w-6 h-6 text-white" />
+              ) : (
+                <HealthBotIcon className="w-6 h-6 text-white" />
+              )}
+            </div>
+
+            {/* Message Bubble */}
+            <div
+              className={`max-w-[75%] p-4 rounded-2xl shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 ${
+                message.sender === 'user'
+                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-tr-sm'
+                  : 'bg-white text-gray-800 rounded-tl-sm border border-emerald-100'
+              }`}
+            >
+              <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
+              <span className={`text-xs mt-2 block ${
+                message.sender === 'user' ? 'text-emerald-100' : 'text-gray-400'
+              }`}>
+                {new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+          </div>
+        ))}
+
+        {/* Loading Indicator */}
+        {isLoading && (
+          <div className="flex items-start gap-3 animate-slide-in">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-md">
+              <HealthBotIcon className="w-6 h-6 text-white" />
+            </div>
+            <div className="bg-white p-4 rounded-2xl rounded-tl-sm shadow-md border border-emerald-100">
+              <div className="flex gap-1.5">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
               </div>
             </div>
           </div>
         )}
+
         <div ref={messagesEndRef} />
-      </main>
-      <footer className="bg-white border-t border-gray-200 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="relative">
+      </div>
+
+      {/* Input Area */}
+      <div className="bg-white border-t border-emerald-100 p-4 shadow-lg">
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+          <div className="flex gap-3 items-center">
             <input
+              ref={inputRef}
               type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="اكتب رسالتك هنا..."
               disabled={isLoading}
-              className="w-full py-3 pr-12 pl-4 text-sm text-gray-800 bg-gray-100 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-shadow duration-200"
+              className="flex-1 px-5 py-3 border-2 border-gray-200 rounded-full focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 outline-none transition-all bg-gray-50 focus:bg-white text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <button
-              onClick={handleSend}
-              disabled={isLoading}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-emerald-600 text-white rounded-full hover:bg-emerald-700 disabled:bg-gray-400 transition-colors duration-200"
-              aria-label="إرسال"
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <SendIcon />
+              <SendIcon className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-xs text-center text-gray-500 mt-3 px-4">
-            تنويه: "رفيق صحتي" هو مساعد ذكي للمعلومات الصحية العامة فقط، ولا يغني عن استشارة الطبيب أو أخصائي التغذية.
-          </p>
-        </div>
-      </footer>
+        </form>
+
+        {/* Disclaimer */}
+        <p className="text-center text-xs text-gray-500 mt-3 max-w-4xl mx-auto">
+          تنويه: "رفيق صحتك" هو مساعد ذكي للمعلومات الصحية العامة فقط، ولا يعني عن استشارة الطبيب أو أخصائي التغذية.
+        </p>
+      </div>
     </div>
   );
 };
