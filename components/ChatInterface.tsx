@@ -134,7 +134,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
         {/* Disclaimer */}
         <p className="text-center text-xs text-gray-500 mt-3 max-w-4xl mx-auto">
-          تنويه: "رفيق صحتك" هو مساعد ذكي للمعلومات الصحية العامة فقط، ولا يعني عن استشارة الطبيب أو أخصائي التغذية.
+          تنويه: "رفيق صحي" هو مساعد ذكي للمعلومات الصحية العامة فقط، ولا يعني عن استشارة الطبيب أو أخصائي التغذية.
         </p>
       </div>
     </div>
